@@ -1,8 +1,8 @@
-const express=require('express')
-const svr=express()
-const session=require('express-session')
-const passport=require('./stratergies')
-const { connectdb }=require('./db')
+const express       = require('express'),
+      svr           = express(),
+      session       = require('express-session'),
+      passport      = require('./stratergies'),
+      { connectdb } = require('./db');
 
 const SERVER_PORT = process.env.PORT || 3000
 
@@ -20,15 +20,7 @@ svr.use(session({
 svr.use(passport.initialize())
 svr.use(passport.session())
 
-function checkLogin(req, res, next) {
-    if(req.user) {
-        return next()
-    }
-    else {
-        res.send('<h1>Error 403</h1><h3>Login First!!<h3>')
-    }
-}
-
+//SHOW ALL BLOGS
 svr.get('/all', (req, res) => {
     connectdb('blogportal')
         .then(db => db.collection('blogs').find().limit(12).sort({likes: -1}))
@@ -54,6 +46,7 @@ svr.get('/next/:skp', (req, res) => {
         })
 })
 
+//HOMEPAGE
 svr.get('/', (req, res) => {
     connectdb('blogportal')
         .then(db => db.collection('blogs').find().limit(8).sort({likes: -1}))
@@ -67,6 +60,7 @@ svr.get('/', (req, res) => {
         })
 })
 
+//HOMEPAGE FOR SIGNED IN USERS
 svr.get('/home', checkLogin, (req, res) => {
     let user=req.user[0].username
     let dp=req.user[0].dp
@@ -82,10 +76,12 @@ svr.get('/home', checkLogin, (req, res) => {
         })
 })
 
+//SHOW FORM FOR SIGN UP
 svr.get('/signup', (req, res) => {
     res.render('signup')
 })
 
+//ROUTE FOR REGISTERING A NEW USER
 svr.post('/signup', (req, res) => {
     let nuser = {
         username: req.body.name,
@@ -102,15 +98,18 @@ svr.post('/signup', (req, res) => {
         })
 })
 
+//SHOW FORM FOR SIGNING IN 
 svr.get('/signin', (req, res) => {
     res.render('signin')
 })
 
+//ROUTE FOR SIGNING IN
 svr.post('/signin', passport.authenticate('local', {
     successRedirect: '/home',
     failureRedirect: '/signin'
 }))
 
+//FACEBOOK SIGN IN
 svr.get('/signin/facebook', passport.authenticate('facebook', { scope : ['email'] }))
 
 svr.get('/signin/facebook/callback', passport.authenticate('facebook', {
@@ -118,6 +117,7 @@ svr.get('/signin/facebook/callback', passport.authenticate('facebook', {
     failureRedirect: '/signin/facebook'
 }))
 
+//GOOGLE SIGN IN
 svr.get('/signin/google', passport.authenticate('google', {scope: ['profile', 'email']}))
 
 svr.get('/signin/google/callback', passport.authenticate('google', {
@@ -125,15 +125,18 @@ svr.get('/signin/google/callback', passport.authenticate('google', {
     failureRedirect: '/signin/google'
 }))
 
+//ROUTE FOR SIGN OUT
 svr.get('/signout', (req, res) => {
     req.logout()
     res.redirect('/')
 })
 
+//FORM FOR CREATING A NEW BLOG
 svr.get('/createb', checkLogin, (req, res) => {
     res.sendFile(__dirname + '/public/newBlog.html')
 })
 
+//ROUTE FOR NEW BLOG CREATION
 svr.post('/create', checkLogin, (req, res) => {
     let date=new Date()
     let blog = {
@@ -158,6 +161,7 @@ svr.post('/create', checkLogin, (req, res) => {
         })
 })
 
+//SHOW ALL BLOGS OF SINGNED IN USER
 svr.get('/myBlogs', checkLogin, (req, res) => {
     let dp=req.user[0].dp
     let name=req.user[0].username
@@ -172,6 +176,7 @@ svr.get('/myBlogs', checkLogin, (req, res) => {
     myBlogs()
 })
 
+//DELETING A BLOG
 svr.delete('/deleteBlog/:title', checkLogin, (req, res) => {
     connectdb('blogportal')
         .then(db => db.collection('blogs').deleteOne({ title: req.params.title }))
@@ -179,6 +184,7 @@ svr.delete('/deleteBlog/:title', checkLogin, (req, res) => {
         .catch(() => res.sendStatus(500))
 })
 
+//EDITING A BLOG
 svr.post('/editBlog', checkLogin, (req, res) => {
     connectdb('blogportal')
         .then(db => db.collection('blogs').updateOne({ title: req.body.title}, { $set: {body: req.body.body, coverimg: req.body.coverimg, category: req.body.category} }))
@@ -189,6 +195,7 @@ svr.post('/editBlog', checkLogin, (req, res) => {
         })
 })
 
+//SHOW SINGLE BLOG
 svr.get('/blog', (req, res) => {
     connectdb('blogportal')
         .then(db => db.collection('blogs').find({ title: req.query.title }))
@@ -207,6 +214,7 @@ svr.get('/blog', (req, res) => {
         })
 })
 
+//GET ALL COMMENTS OF A BLOG
 svr.get('/getcomments', (req, res) => {
     connectdb('blogportal')
         .then(db => db.collection('comments').find())
@@ -218,6 +226,7 @@ svr.get('/getcomments', (req, res) => {
         })
 })
 
+//ROUTE FOR ADDING COMMENT
 svr.post('/addcomment', checkLogin, (req, res) => {
     let cmnt = {
         blogTitle: req.body.title,
@@ -237,6 +246,7 @@ svr.post('/addcomment', checkLogin, (req, res) => {
     newcomment(cmnt)
 })
 
+//ROUTE FOR COMMENT LIKING
 svr.post('/like/:title', checkLogin, (req, res) => {
     connectdb('blogportal')
         .then(db => db.collection('comments').updateOne({ comment: req.params.title }, { $inc: {likes: 1} }))
@@ -247,6 +257,7 @@ svr.post('/like/:title', checkLogin, (req, res) => {
         })
 })
 
+//ROUTE FOR BLOG LIKING
 svr.post('/addlike/:title', checkLogin, (req, res) => {
     connectdb('blogportal')
         .then(db => db.collection('blogs').updateOne({ title: req.params.title}, { $inc: {likes: 1} }))
@@ -257,6 +268,7 @@ svr.post('/addlike/:title', checkLogin, (req, res) => {
         })
 })
 
+//ROUTE FOR BLOG SEARCH
 svr.get('/search', (req, res) => {
     connectdb('blogportal')
         // .then(db => db.collection('blogs').find({ $text: { $search: req.query.q } }, { score: { $meta: "textScore" } } ).sort( { score: { $meta: "textScore" } } ))
@@ -268,6 +280,7 @@ svr.get('/search', (req, res) => {
         .catch((e) => res.send(e))
 })
 
+//ROUTE TO SHOW BLOGS BY A CATEGORY
 svr.get("/category", (req, res) => {
     connectdb('blogportal')
         .then(db => db.collection('blogs').find({category: req.query.cat}))
@@ -278,6 +291,16 @@ svr.get("/category", (req, res) => {
             res.send(err)
         })
 })
+
+//MIDDLEWARE
+function checkLogin(req, res, next) {
+    if(req.user) {
+        return next()
+    }
+    else {
+        res.send('<h1>Error 403</h1><h3>Login First!!<h3>')
+    }
+}
 
 svr.listen(SERVER_PORT, () => {
     console.log('http://localhost:3000/')
