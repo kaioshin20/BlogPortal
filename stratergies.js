@@ -1,8 +1,8 @@
-const passport=require('passport')
-const LocalStratergy=require('passport-local')
-const FacebookStratergy=require('passport-facebook')
-const GoogleStrategy=require('passport-google-oauth20')
-const { connectdb }=require('./db')
+const passport          = require('passport'),
+      LocalStratergy    = require('passport-local'),
+      FacebookStratergy = require('passport-facebook'),
+      GoogleStrategy    = require('passport-google-oauth20'),
+      { connectdb }     = require('./db');
 
 passport.use(new LocalStratergy({
     usernameField: 'email'
@@ -20,8 +20,7 @@ passport.use(new LocalStratergy({
             done(null, user)
         })
         .catch(done)
-}
-)
+})
 );
 
 passport.use( new FacebookStratergy({
