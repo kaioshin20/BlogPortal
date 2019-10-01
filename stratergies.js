@@ -14,10 +14,13 @@ passport.use(new LocalStratergy({
             if(!user) {
                 return done(new Error('username invalid'))
             }
-            if(user[0].password != password) {
-                return done(null, false)
-            }
-            done(null, user)
+            bcrypt.compare(password, user[0].password,(err, result)=>{
+                if(err) return done(err);
+  
+                if(result) return done(null, user);
+  
+                else return done(null, false, { message: 'Incorrect password.' });
+              });
         })
         .catch(done)
 })
