@@ -1,8 +1,8 @@
-const passport=require('passport')
-const LocalStratergy=require('passport-local')
-const FacebookStratergy=require('passport-facebook')
-const GoogleStrategy=require('passport-google-oauth20')
-const { connectdb }=require('./db')
+const passport          = require('passport'),
+      LocalStratergy    = require('passport-local'),
+      FacebookStratergy = require('passport-facebook'),
+      GoogleStrategy    = require('passport-google-oauth20'),
+      { connectdb }     = require('./db');
 
 passport.use(new LocalStratergy({
     usernameField: 'email'
@@ -14,14 +14,16 @@ passport.use(new LocalStratergy({
             if(!user) {
                 return done(new Error('username invalid'))
             }
-            if(user[0].password != password) {
-                return done(null, false)
-            }
-            done(null, user)
+            bcrypt.compare(password, user[0].password,(err, result)=>{
+                if(err) return done(err);
+  
+                if(result) return done(null, user);
+  
+                else return done(null, false, { message: 'Incorrect password.' });
+              });
         })
         .catch(done)
-}
-)
+})
 );
 
 passport.use( new FacebookStratergy({
