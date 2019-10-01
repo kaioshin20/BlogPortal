@@ -2,6 +2,7 @@ const express       = require('express'),
       svr           = express(),
       session       = require('express-session'),
       passport      = require('./stratergies'),
+      bcrypt        = require("bcrypt"),
       { connectdb } = require('./db');
 
 const SERVER_PORT = process.env.PORT || 3000
@@ -83,10 +84,15 @@ svr.get('/signup', (req, res) => {
 
 //ROUTE FOR REGISTERING A NEW USER
 svr.post('/signup', (req, res) => {
+    let saltRounds=10,hashcode;
+    bcrypt.hash(req.body.password, saltRounds, function(err,hash) {
+        hashcode=hash;
+    });
+
     let nuser = {
         username: req.body.name,
         email: req.body.email,
-        password: req.body.password,
+        password: hashcode,
         dp: (req.body.dp) ? req.body.dp : 'https://i.imgur.com/iDYfrOd.png'
     }
     connectdb('blogportal')
