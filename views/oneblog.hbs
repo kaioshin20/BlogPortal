@@ -36,14 +36,14 @@
 
         <div class="ncomment">
             <div class="container">
-            <form action="/addcomment" method="POST">
+            <form action="/addcomment" method="POST" id="commentform">
                 <h2>Add comment</h2> <br>
                 <textarea name="title" style="display: none">{{b.title}}</textarea>
                 <textarea name="author" style="display: none">{{b.author}}</textarea>
                 <textarea name="dp" style="display: none">{{b.dp}}</textarea>
                 <div class="form-group">
-                <input class="form-control" name="comment" type="text" required style="width: 50%; display:inline;">
-                <button class="btn btn-success">Post</button>
+                <input class="form-control" name="comment" type="text" required id="commentContent" style="width: 50%; display:inline;">
+                <button type="submit" class="btn btn-success">Post</button>
                 </div>
             </form>
             <hr>
