@@ -27,9 +27,10 @@ passport.use(new LocalStratergy({
 );
 
 passport.use( new FacebookStratergy({
-    clientID: 'fbID',
-    clientSecret: 'fbSecret',
-    callbackURL: 'http://localhost:3000/signin/facebook/callback',
+    clientID: process.env.bpfid,
+    clientSecret: process.env.bpfsec,
+    // callbackURL: 'http://localhost:3000/signin/facebook/callback',
+    callbackURL: "https://blogportalv2.herokuapp.com/signin/facebook/callback",
     profileFields: ['emails', 'displayName', 'picture.type(large)']
 },
 (accessToken, refreshToken, profile, done) => {
@@ -60,9 +61,10 @@ passport.use( new FacebookStratergy({
 }))
 
 passport.use(new GoogleStrategy({
-    clientID: 'googleID',
-    clientSecret: 'googleSecret',
-    callbackURL: "http://localhost:3000/signin/google/callback"
+    clientID: process.env.bpgid,
+    clientSecret: process.env.bpgsec,
+    // callbackURL: "http://localhost:3000/signin/google/callback",
+    callbackURL: "https://blogportalv2.herokuapp.com/signin/google/callback"
   },
   (accessToken, refreshToken, profile, done) => {
     connectdb('blogportal')
